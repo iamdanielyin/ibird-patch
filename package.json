@@ -1,6 +1,6 @@
 {
   "name": "ibird-patch",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "The code-patch tool of ibird.",
   "main": "lib/index.js",
   "repository": {
