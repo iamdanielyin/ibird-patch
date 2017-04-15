@@ -44,11 +44,17 @@ patch.config({
 patch.output();
 ```
 
-> Tips：
->
-> 1. sources下配置的key为输入路径，value为输出路径。输入路径可以配置成当前执行文件的相对路径，输出路径可以配置成输出目录（配置中的output属性值）的相对路径。输入与输出路径也都可以配置成绝对路径。
-> 2. 当你只需要打包一个目录下的部分文件或文件夹时，可指定value值为对象类型，在对象内再选择需要打包的文件或文件夹进行配置，配置方式与外层方式相同。
-> 3. 当你需要忽略一个目录下的部分文件或文件夹，其余全部打包时，可以将输入路径以英文感叹号开头（!），并指定value值为对象类型，在对象内需要再配置dest（该目录的输出路径）和filter（需要忽略的文件名称或文件夹名称，注意，这里只能指定输入路径下能直接获取的文件和文件夹名称，不能指定其他路径，更也不能指定子级路径）属性，filter的值可以为数组，也可以为字符串类型，多个名称时以英文空格分隔。
+### 参数列表
+
+| 参数 | 对象 | 描述 | 是否必输 |
+| :--- | :--- | :--- | :--- |
+| output | string | 输出目录，相对或绝对路径皆可 | 必输 |
+| sources | object | 需要打包的路径对象，key为源文件或目录路径，value为目标文件或目录路径，相对或绝对路径皆可 | 必输 |
+| compress | boolean | 是否压缩 | 可选，默认为false |
+| format | string | 仅支持zip和tar两种格式 | 可选，默认zip |
+| filename | string | 压缩文件名，相对或绝对路径皆可，仅当compress为true时有效 | 可选 |
+| options | object | archiverjs初始化对象时的参数，参见高级应用章节 | 可选 |
+| callback | function | 打包完成后的回调函数，接收的第一个参数为Error对象，成功生成时该对象为空。需要注意，配置后该参数后不会再出现控制台提示 | 可选 |
 
 ### 打包配置
 
@@ -116,5 +122,54 @@ patch.output();
 生成补丁成功：/Users/yinfxs/patch_dest/just_for_test.zip
 ```
 
+## 高级应用
 
+本章节描述了工具对于以下几个应用场景的支持：
+
+1. 当你需要打包的文件夹下有很多文件，但你只想要打包其中几个文件或文件夹的时候
+2. 当你需要打包的文件夹下同样有很多文件，但你只想将指定的几个文件或文件夹忽略，其他全部打包的时候
+3. 当你想要打tar.gz格式的压缩包文件
+4. 当你想要更改压缩级别时
+
+如果你想打包一个目录下的某几个文件或文件夹，你可以这样配置sources：
+
+```js
+const config = {
+    output: '/home/ibird/output',
+    sources: {
+        "relative/dir2": {
+            "file01": "/home/ibird/output/relative/dir2/file01",
+            "file02": "/home/ibird/output/relative/dir2/file02",
+            "dir01": "/home/ibird/output/relative/dir2/dir01",
+            "dir02": "/home/ibird/output/relative/dir2/dir02"
+        },
+        "/home/ibird/project/absolute/dir3": {
+            "file01": "/home/ibird/output/absolute/dir3/file01",
+            "file02": "/home/ibird/output/absolute/dir3/file02",
+            "dir01": "/home/ibird/output/absolute/dir3/dir01",
+            "dir02": "/home/ibird/output/absolute/dir3/dir02"
+        }
+    }
+};
+```
+
+如果你想忽略一个目录下的某几个文件或文件夹，其余全部打包，你可以这样配置sources：
+
+```js
+const config = {
+    output: '/home/ibird/output',
+    sources: {
+        "!relative/dir3": {
+            dest: "/home/ibird/output/relative/dir3",
+            filter: "skipFile1 skipFile2 skipDir1 skipDir2"
+        },
+        "!/home/ibird/project/relative/dir4": {
+            dest: "/home/ibird/output/relative/dir4",
+            filter: "skipFile1 skipFile2 skipDir1 skipDir2"
+        }
+    }
+};
+```
+
+如果需要修改压缩相关的配置，可以配置options属性，options属性可参见[Archiver文档](https://archiverjs.com/docs/Archiver.html)。
 

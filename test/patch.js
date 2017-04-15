@@ -1,9 +1,11 @@
 'use strict';
 
+
 /**
  * 项目自动打包文件
  * Created by yinfxs on 2017/4/14.
  */
+
 
 const patch = require('ibird-patch');
 
@@ -24,6 +26,14 @@ patch.config([
     {
         output: 'patches/test',
         compress: true,
+        filename: '../k11-todo-wosoft.zip',
+        format: 'tar',
+        options: {
+            gzip: true,
+            gzipOptions: {
+                level: -1
+            }
+        },
         sources: {
             'cert': 'cert',
             'clients/admin/dist': 'admin/dist',
