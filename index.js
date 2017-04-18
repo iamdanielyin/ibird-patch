@@ -8,7 +8,6 @@
 const path = require('path');
 const fs = require('fs');
 const fsx = require('fs-extra');
-const _ = require('lodash');
 const archiver = require('archiver');
 const app = {patchs: []};
 module.exports = app;
@@ -19,8 +18,8 @@ module.exports = app;
  * @returns {Array.<*>}
  */
 app.config = (obj) => {
-    if (!obj || !_.isObject(obj)) return;
-    if (_.isArray(obj)) return app.patchs = app.patchs.concat(obj);
+    if (obj == null || typeof obj !== 'object') return;
+    if (Array.isArray(obj)) return app.patchs = app.patchs.concat(obj);
     app.patchs.push(obj);
 };
 
@@ -53,14 +52,14 @@ app.compressPatch = (item) => {
     output.on('close', () => {
         const filesize = archive.pointer() / (1024 * 1000);
         if (path.parse(item.filename).dir != item.output) fsx.removeSync(item.output);
-        if (_.isFunction(item.callback)) {
+        if (typeof item.callback === 'function') {
             item.callback(null, archive);
         } else {
             console.log(`生成压缩补丁成功：${item.filename}，约${filesize.toFixed(1) + 'Mb'}`);
         }
     });
     output.on('error', (err) => {
-        if (_.isFunction(item.callback)) {
+        if (typeof item.callback === 'function') {
             item.callback(err);
         } else {
             console.error(`生成补丁失败：${err.message}`);
@@ -74,10 +73,10 @@ app.compressPatch = (item) => {
  * 按配置输出补丁
  */
 app.output = () => {
-    if (!_.isArray(app.patchs) || app.patchs.length == 0) return;
+    if (!Array.isArray(app.patchs) || app.patchs.length == 0) return;
     for (const item of app.patchs) {
         try {
-            if (!_.isObject(item) || !_.isString(item.output)) continue;
+            if (typeof item.output !== 'string') continue;
             if (!item.sources || Object.keys(item.sources).length == 0) continue;
             item.output = path.resolve(process.cwd(), item.output);
             const compress = item.compress == true ? true : false;
@@ -94,13 +93,13 @@ app.output = () => {
                 src = path.resolve(process.cwd(), src);
 
                 //1.如果是dest配置的是字符串，则直接复制目录或文件
-                if (_.isString(dest)) {
+                if (typeof dest === 'string') {
                     const _dest = path.resolve(item.output, dest);
                     fs.accessSync(src, fs.constants.R_OK);
                     fsx.copySync(src, _dest);
                     continue;
                 }
-                if (!(_.isObject(dest) && !_.isArray(dest))) continue;
+                if (dest == null || typeof dest !== 'object') continue;
 
                 if (!omit) {
                     for (let key in dest) {
@@ -114,7 +113,7 @@ app.output = () => {
                     //2.如果是对象配置，则再做处理
                     if (!dest.dest || !dest.filter) continue;
 
-                    filter = _.isArray(dest.filter) ? dest.filter : dest.filter.split(' ');
+                    filter = Array.isArray(dest.filter) ? dest.filter : dest.filter.split(' ');
                     dest = dest.dest;
 
                     const stat = fs.statSync(src);
@@ -134,7 +133,7 @@ app.output = () => {
 
             }
             if (!compress) {
-                if (_.isFunction(item.callback)) {
+                if (typeof item.callback === 'function') {
                     item.callback();
                 } else {
                     console.log(`生成补丁目录成功：${item.output}`);
@@ -145,7 +144,7 @@ app.output = () => {
             app.compressPatch(item);
 
         } catch (err) {
-            if (_.isFunction(item.callback)) {
+            if (typeof item.callback === 'function') {
                 item.callback(err);
             } else {
                 console.error(`生成补丁失败：${err.message}`);
