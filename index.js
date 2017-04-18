@@ -122,10 +122,10 @@ app.output = () => {
 
                     const files = fs.readdirSync(src);
                     if (files.length == 0) continue;
-                    for (const item of files) {
-                        if (filter.indexOf(item) >= 0) continue;
-                        const _src = path.resolve(src, item);
-                        const _dest = path.resolve(item.output, dest, item);
+                    for (const file of files) {
+                        if (filter.indexOf(file) >= 0) continue;
+                        const _src = path.resolve(src, file);
+                        const _dest = path.resolve(item.output, dest, file);
                         fs.accessSync(_src, fs.constants.R_OK);
                         fsx.copySync(_src, _dest);
                     }
