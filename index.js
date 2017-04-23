@@ -51,7 +51,7 @@ app.compressPatch = (item) => {
     const output = fs.createWriteStream(item.filename);
     output.on('close', () => {
         const filesize = archive.pointer() / (1024 * 1000);
-        if (path.parse(item.filename).dir != item.output) fsx.removeSync(item.output);
+        if (item.autoremove === true) fsx.removeSync(item.output);
         if (typeof item.callback === 'function') {
             item.callback(null, archive);
         } else {
